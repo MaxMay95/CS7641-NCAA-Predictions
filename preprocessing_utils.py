@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 
 def get_game_data(relative=None, stats_filter=None, datasets_dir=None, games_file_name=None, stats_file_name=None):
@@ -21,7 +22,7 @@ def get_game_data(relative=None, stats_filter=None, datasets_dir=None, games_fil
     """
     relative = True if relative is None else relative
     datasets_dir = 'datasets' if datasets_dir is None else datasets_dir
-    games_file_name = 'NCAA tournament games 2010-2018.csv' if games_file_name is None else games_file_name
+    games_file_name = 'NCAA tournament games 2010-2018 shuffled.csv' if games_file_name is None else games_file_name
     if games_file_name[-4:] != '.csv':
         raise Warning('games_file_name must end in .csv. A CSV file is required.')
     stats_file_name = 'Stats by team and year 2010-2018.csv' if stats_file_name is None else stats_file_name
@@ -51,3 +52,34 @@ def get_game_data(relative=None, stats_filter=None, datasets_dir=None, games_fil
     else:
         df_game_data = df_games.join((df_stats_1 - df_stats_2).add_suffix(' Diff'))
     return df_game_data
+
+
+def shuffle_games(datasets_dir=None, games_file_name=None, games_file_new_name=None, seed=None):
+    """
+    Randomly swap Team1 and Team2 (and thus the value of Team1 Result) in games_file.
+
+    :param datasets_dir: Name of the directory in cwd containing the CSVs with games_file and stats_file. Defaults to
+        'datasets'.
+    :param games_file_name: Name of the CSV file containing game info (which teams played in each game).
+    :param games_file_new_name: Name of the CSV file to save the shuffled games into. Defaults to games_file_name with
+        ' shuffled' appended before .csv.
+    :param seed: Random seed.
+    """
+    datasets_dir = 'datasets' if datasets_dir is None else datasets_dir
+    games_file_name = 'NCAA tournament games 2010-2018.csv' if games_file_name is None else games_file_name
+    if games_file_name[-4:] != '.csv':
+        raise Warning('games_file_name must end in .csv. A CSV file is required.')
+    games_file_new_name = games_file_name[:-4] + ' shuffled.csv' if games_file_new_name is None else games_file_new_name
+    if games_file_new_name[-4:] != '.csv':
+        raise Warning('games_file_new_name must end in .csv. A CSV file is required.')
+    games_file_path = os.path.join(datasets_dir, games_file_name)
+    games_file_new_path = os.path.join(datasets_dir, games_file_new_name)
+    df_games = pd.read_csv(games_file_path, sep=',')
+    df_games = df_games.loc[:, ~df_games.columns.str.contains('^Unnamed')]
+    if seed is not None:
+        np.random.seed(seed)
+    for index, row in df_games.iterrows():
+        if np.random.choice([True, False]):
+            df_games.at[index, 'Team1 ID'], df_games.at[index, 'Team2 ID'] = row['Team2 ID'], row['Team1 ID']
+            df_games.at[index, 'Team1 result'] = 'win' if row['Team1 result'] == 'loss' else 'loss'
+    df_games.to_csv(games_file_new_path, index=False)
