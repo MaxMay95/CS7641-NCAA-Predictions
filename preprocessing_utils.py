@@ -21,7 +21,7 @@ def get_game_data(relative=None, stats_filter=None, datasets_dir=None, games_fil
     """
     relative = True if relative is None else relative
     datasets_dir = 'datasets' if datasets_dir is None else datasets_dir
-    games_file_name = 'NCAA tournament games 2010-2018.csv' if games_file_name is None else games_file_name
+    games_file_name = 'NCAA tournament games 2010-2018 shuffled.csv' if games_file_name is None else games_file_name
     if games_file_name[-4:] != '.csv':
         raise Warning('games_file_name must end in .csv. A CSV file is required.')
     stats_file_name = 'Stats by team and year 2010-2018.csv' if stats_file_name is None else stats_file_name
