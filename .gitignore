@@ -106,7 +106,7 @@ venv.bak/
 # Pycharm
 .idea/
 
-# Mac OS X
+# Mac OS X_train
 .DS_Store
 
 # datasets
