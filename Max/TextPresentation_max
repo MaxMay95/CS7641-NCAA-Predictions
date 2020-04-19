@@ -1,0 +1,20 @@
+1.image
+The goal is to cluster 64 teams in their respective seeds based on these 14 normalized features.
+2.image
+A 3D visualization for one year shows that they are not easy to distinguish by means of only 3 prinicipal components.
+3.image
+This is the same for all years from 2010-2018.
+4.image
+We need 9 out of 14 features to get a retained variance of 95.1%
+5.image
+Using euclidean distance and average linkage, we get approximately evenly sized clusters in the dendrogram.
+6.image
+The clusters were evaluted with three different measures and all show a decrease for finer clustering as expected. We reach a purity of 31% for 8 clusters.
+
+7.image
+This is a 3D visualization for qualified vs non-qualified teams with all teams from each year not only the 64 qualified ones.
+8.image
+We can see that in this case much more variance is contained in the first element, but stil 9 out of 14 are needed for 96.2% variance.
+
+9.table
+The clustering is not really good as both clusters are assigned to the same ground truth. We need better/more features or more data for better results. Furhtermore there are less qualified than non-qualfied points in the data set.
