@@ -23,7 +23,7 @@
 Each seed consists 4 teams which have approximately the same performance. With seed number 1 containing the four best teams to seed number 16 containing the 4 weakest teams.
 The task is to cluster the teams from the tournament based on their season statistics and then compare the clustering to the decision from the committee. Hierarchical clustering is used to build groupings with variable cluster sizes depending on where the tree is cut. As the distinction between 16 seeds might be too hard, an even number of seeds can be conflated to one and the clustering validation can be compared for different seed sizes.
 Looking at histogram plots of the feature distributions, we can see that all 14 used features are normalized in an interval from 0 to 1.
-<img src="/images/max_datahistogram.png">
+<img src="images/max_datahistogram.png">
 Through PCA the data can be visualized in 3D by the first three principal components. If only data from a single year is selected, one can see that it is hard to group these data points into clusters using only three features.
 <img src="/images/max_3dpca_2018.png">
 If the data from all nine years is plotted, some patterns and clusters can be seen. But it’s still hard to distinguish between some of the overlapping seed clusters.
