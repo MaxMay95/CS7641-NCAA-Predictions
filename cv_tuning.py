@@ -4,7 +4,7 @@ from scipy.stats import norm
 from sklearn.model_selection import cross_val_score
 
 
-def run_cross_validation(X_train, y_train, hyperparams_list, classifier_constructor, cv=None, scoring=None, plot=None,
+def run_cross_validation(X_train, y_train, hyperparams_list, classifier_constructor, cv=None, scoring=None, plot=None, log_plot=False, 
                          plot_args=None):
     """
     Use cross-validation to determine set of hyperparameters from options in hyperparams.
@@ -49,12 +49,12 @@ def run_cross_validation(X_train, y_train, hyperparams_list, classifier_construc
     cv_scores_stds = np.array(cv_scores_stds)
     train_scores = np.array(train_scores)
     if plot:
-        _plot_cross_validation(hyperparams_list, cv_scores_means, cv_scores_stds, train_scores, str(scoring),
+        _plot_cross_validation(hyperparams_list, cv_scores_means, cv_scores_stds, train_scores, str(scoring), log=log_plot, 
                                **plot_args)
     return cv_scores_means, cv_scores_stds, train_scores, hyperparams_list[np.argmax(cv_scores_means)], hyperparams_list
 
 
-def _plot_cross_validation(hyperparams_list, cv_scores_means, cv_scores_stds, train_scores, scoring_name,
+def _plot_cross_validation(hyperparams_list, cv_scores_means, cv_scores_stds, train_scores, scoring_name, log=False, 
                            plot_hyperparam=None, x_ticks=None, confidence_level=None, y_lim_training=None):
     """
     Plot score vs. hyperparam_values for determination of best value for the hyperparameter being examined.
@@ -79,6 +79,8 @@ def _plot_cross_validation(hyperparams_list, cv_scores_means, cv_scores_stds, tr
     x_ticks = [hyperparams[plot_hyperparam] for hyperparams in hyperparams_list] if x_ticks is None else x_ticks
     confidence_level = .8 if confidence_level is None else confidence_level
     fig, ax = plt.subplots(1, 1, figsize=(15, 5))
+    if log is True:
+        ax.set_xscale('log')
     ax.plot(x_ticks, cv_scores_means, '-o', label='mean cross-validation {}'.format(scoring_name), alpha=0.9)
     n = len(cv_scores_means)
     confidence_intervals = np.array([norm.interval(confidence_level,
