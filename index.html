@@ -19,39 +19,65 @@
     <section class="main-content">
       <h2>
 <a id="hierarchical-clustering-for-seeding-max-may" class="anchor" href="#hierarchical-clustering-for-seeding-max-may" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hierarchical Clustering for seeding (Max May)</h2>
-<p>In the NCAA March Madness tournament, there are 64 teams each year qualified to participate. These 64 Teams are grouped by a committee into 16 seeds.
-Each seed consists 4 teams which have approximately the same performance. With seed number 1 containing the four best teams to seed number 16 containing the 4 weakest teams.
-The task is to cluster the teams from the tournament based on their season statistics and then compare the clustering to the decision from the committee. Hierarchical clustering is used to build groupings with variable cluster sizes depending on where the tree is cut. As the distinction between 16 seeds might be too hard, an even number of seeds can be conflated to one and the clustering validation can be compared for different seed sizes.
-Looking at histogram plots of the feature distributions, we can see that all 14 used features are normalized in an interval from 0 to 1.
-<img src="images/max_datahistogram.png">
-Through PCA the data can be visualized in 3D by the first three principal components. If only data from a single year is selected, one can see that it is hard to group these data points into clusters using only three features.
+<p>In the NCAA March Madness tournament there are 64 teams each year qualified
+to participate. These 64 Teams are grouped by a committee into 16 seeds.
+Each seed consists 4 teams which have approximately the same performance.
+With seed number 1 containing the four best teams to seed number 16 containing
+the 4 weakest teams.</p>
+<p>The task is to cluster the teams from the tournament based on their season statistics
+and then compare the clustering to the decision from the committee.
+Hierarchical clustering is used to build groupings with variable cluster sizes
+depending on where the tree is cut. As the distinction between 16 seeds might be too
+hard, an even number of seeds can be conflated to one and the clustering validation
+can be compared for different seed sizes.</p>
+<p>Looking at histogram plots of the feature distributions, we can see that all 14 used features
+are normalized in an interval from 0 to 1.</p>
+<img src="/images/max_datahistogram.png">
+<p>Through PCA the data can be visualized in 3D by the first three principal components. If only data from a single year is selected, one can see that it is hard to group these data points into clusters using only three features.</p>
 <img src="/images/max_3dpca_2018.png">
-If the data from all nine years is plotted, some patterns and clusters can be seen. But it’s still hard to distinguish between some of the overlapping seed clusters.
+<p>If the data from all nine years is plotted, some patterns and clusters can be seen. But its still hard to distinguish between some of the overlapping seed clusters.</p>
 <img src="/images/max_3dpca.png">
-Principal component analysis tells us that at least 9 out of the 14 features are needed to achieve a retained variance of 95.1%. This can be seen in the following scree plot.
+<p>Principal component analysis tells us that at least 9 out of the 14 features are needed to achieve a retained variance of 95.1%. This can be seen in the following scree plot.</p>
 <img src="/images/max_screeplot_seeding.png">
-For hierarchical clustering two important settings need to be considered. One is the metric, for which Euclidean distance is commonly used. The other one is the linkage, which can be single link, complete link, average link, etc. Here average link was chosen, because it is mostly recommended for general tasks, avoids chaining and clusters mostly into evenly sized groups, which is necessary for our task. The effect of this can be seen in the following dendrogram.
+<p>For hierarchical clustering two important settings need to be considered. One is the metric, for which euclidean distance is commonly used. The other one is the linkage, which can be single link, complete link, average link, etc.. Here average link was chosen, because it is mostly recommended for general tasks, avoids chaining and clusters mostly into evenly sized groups, which is necessary for our task. The effect of this can be seen in the following dendrogram.</p>
 <img src="/images/max_dendrogram.png">
-After clustering is performed, we evaluate how good it is by means of different validation metrics.
+<p>After clustering is performed, we evaluate how good it is by means of different validation metrics.</p>
 <img src="/images/max_cluster_val.png">
-The purity gives us an indicator of how purely the clusters consist of only data points from a single ground truth, with 1 corresponding to the best purity. For the given task we get the best purity when we only partition into two seeds and the purity decreases with the number of seeds, as expected.
-The mutual information measures the amount of information shared between clustering and ground truth. The adjusted variant of MI is independent of the number of clusters in a partition, otherwise a higher number of clusters would give a better MI score. Larger values indicate a good clustering. Our results show a slight decrease in the AMI for an increased number of seeds.
-The random score is a pairwise measure, which is the fraction of true positives and true negatives over the total number of pairs. The adjusted rand score is centered and normalized to adjust for chance. Negative values are bad, close to zero means random and a score of one means that the clustering assignments are identical up to label permutations. For our task the ARI slightly decreases with the number of seeds.
-An overall trend of decreased performance can be observed as the partitioning of the teams into the seeds gets finer. With a purity below 20% for partitioning into the regular 16 seeds, this means that this task is harder than expected based on the provided features.</p>
+<p>The purity gives us an indicator of how purely the clusters consist of only data points from a single ground truth, with 1 corresponding to the best purity. For the given task we get the best purity when we only partition into two seeds and the purity decreases with the number of seeds, as expected.</p>
+<p>The mutual information measures the amount of information shared between clustering and ground truth. The adjusted variant of MI is independent of the number of clusters in a partition, otherwise a higher number of clusters would give a better MI score. Larger values indicate a good clustering. Our results show a slight decrease in the AMI for a increased number of seeds.</p>
+<p>The random score is a pairwise measure, which is the fraction of true positives and true negatives over the total number of pairs. The adjusted rand score is centered and normalized to adjust for chance. Negative values are bad, close to zero means random and a score of one means that the clusterings are identical up to label permutations. For our task the ARI slightly decreases with the number of seeds.</p>
+<p>An overall trend of decreased performance can be observed as the partitioning of the teams into the seeds gets finer. With a purity below 20% for partitioning into the regular 16 seeds, this means that this task is harder than expected based on the provided features.</p>
 <h3>
-<a id="qualified-vs-nonqualified" class="anchor" href="#qualified-vs-nonqualified" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Qualified vs. Nonqualified</h3>
+<a id="qualified-vs-non-qualified" class="anchor" href="#qualified-vs-non-qualified" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Qualified vs. non-qualified</h3>
 <p>Another clustering task is to determine what teams got qualified for the tournament.
-The 3D visualization via PCA shows that the clusters of qualified vs. nonqualified teams is much better to distinguish.
+The 3D visualization via PCA shows that the clusters of qualified vs. non-qualified teams is much better to distinguish.</p>
 <img src="/images/max_3dpca_qual.png">
-This is also visible in the decrease in variance of the principal components. Over 50% of the variance is contained in the first component, whereas the other components only have minor contributions.
+<p>This is also visible in the decrease in variance of the principal components. Over 50% of the variance is contained in the first component, whereas the other components only have minor contributions.</p>
 <img src="/images/max_screeplot_qual.png">
-We need 9 features to recover 96.2% of the variance.
-A purity of 82% for the qualified vs. nonqualified clustering is reached. As both clusters contain mainly points from one ground truth. But from the contingency matrix<br>
-| Clustering/Ground truth | T1 | T2 |
-|:-----------------------------:|:----:|:---:|
-| C1 | 2521 | 576 |
-| C2 | 28 | 0 |
-we can see that both clusters are assigned to the same ground truth partition. This results in a bad ARI and AMI score close to 0. Seems that the clusters are not properly separable by the distance metric. Because there are far less qualified than non-qualified data points, one cluster should end up much bigger than the other one and they are not evenly sized anymore."</p>
+<p>We need  9 features to recover 96.2% of the variance.
+A purity of 82% for the qualified vs. non-qualified clustering is reached. As both clusters contain mainly points from one ground truth. But from the contigency matrix</p>
+<table>
+<thead>
+<tr>
+<th align="center">Clustering/Ground truth</th>
+<th align="center">T1</th>
+<th align="center">T2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">C1</td>
+<td align="center">2521</td>
+<td align="center">576</td>
+</tr>
+<tr>
+<td align="center">C2</td>
+<td align="center">28</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<p>we can see that both clusters are assigned to the same ground truth partition. This results in a bad ARI and AMI score close to 0. Seems that the clusters are not properly seperable by the distance metric. Because there are far less qualified than non-qualified data points, one cluster should end up much bigger than the other one and they are not evenly sized anymore.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.gatech.edu/hwilco6/CS7641-NCAA-Predictions">Cs7641-ncaa-predictions</a> is maintained by <a href="https://github.gatech.edu/hwilco6">hwilco6</a>.</span>
