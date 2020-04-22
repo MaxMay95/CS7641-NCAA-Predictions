@@ -10,8 +10,8 @@ from sklearn.model_selection import learning_curve
 def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
     """
-    Generate 3 plots: the test and training learning curve, the training
-    samples vs fit times curve, the fit times vs score curve.
+    Generate 2 plots: the test and training learning curve and the training
+    samples vs fit times curve
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
         Target relative to X for classification or regression;
         None for unsupervised learning.
 
-    axes : array of 3 axes, optional (default=None)
+    axes : array of 2 axes, optional (default=None)
         Axes to use for plotting the curves.
 
     ylim : tuple, shape (ymin, ymax), optional
@@ -67,7 +67,7 @@ def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
         (default: np.linspace(0.1, 1.0, 5))
     """
     if axes is None:
-        _, axes = plt.subplots(1, 3, figsize=(20, 5))
+        _, axes = plt.subplots(1, 2, figsize=(20, 5))
 
     axes[0].set_title(title)
     if ylim is not None:
@@ -108,14 +108,5 @@ def plot_learning_curve(estimator, title, X, y, axes=None, ylim=None, cv=None,
     axes[1].set_xlabel("Training examples")
     axes[1].set_ylabel("fit_times (s)")
     axes[1].set_title("Scalability of the model")
-
-    # Plot fit_time vs score
-    axes[2].grid()
-    axes[2].plot(fit_times_mean, test_scores_mean, 'o-')
-    axes[2].fill_between(fit_times_mean, test_scores_mean - test_scores_std,
-                         test_scores_mean + test_scores_std, alpha=0.1)
-    axes[2].set_xlabel("fit_times")
-    axes[2].set_ylabel("ROC AUC")
-    axes[2].set_title("Performance of the model")
 
     return plt
