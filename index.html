@@ -94,11 +94,11 @@ principal components. Furthermore, <strong>95%</strong> of the variance could on
 with <strong>99%</strong> of variance recovered requiring 11 components.</p>
 <img src="images/Supervised_PCA_Scree_Plot.png">
 <h1>
-<a id="unsupervised-results" class="anchor" href="#unsupervised-results" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Unsupervised Results</h1>
+<a id="unsupervised-learning" class="anchor" href="#unsupervised-learning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Unsupervised Learning</h1>
 <p>For the unsupervised learning, the seed feature was removed from the stats dataset (for obvious reasons). After PCA on
 the stats dataset with the seed feature removed (for obvious reasons), we needed nine components to recover at least
 <strong>95%</strong> of the variance.</p>
-<img src="/images/max_screeplot_seeding.png">
+<img src="images/max_screeplot_seeding.png">
 <p>It is important to note that the dataset used in unsupervised learning is not the same as the one used for supervised
 learning — the stats dataset used here was not combined with the NCAA tournament games dataset, thus each instance
 represents a Division I NCAA basketball team and their regular season statistics.</p>
@@ -212,9 +212,9 @@ validation can be compared for different seed sizes. PCA was applied, keeping ni
 distance is commonly used. The other one is the linkage, which can be single link, complete link, average link, etc.
 Here, average link was chosen because it is often recommended for general tasks, avoids chaining, and clusters mostly
 into evenly sized groups, which is necessary for our task. The effect of this can be seen in the following dendrogram.</p>
-<img src="/images/max_dendrogram.png">
+<img src="images/max_dendrogram.png">
 <p>After clustering is performed, we evaluate how good it is by means of different validation metrics.</p>
-<img src="/images/max_cluster_val.png">
+<img src="images/max_cluster_val.png">
 <p>The purity gives us an indicator of how purely the clusters consist of only data points from a single ground truth, with
 1 corresponding to the best purity. For the given task we get the best purity when we only partition into two seeds and
 the purity decreases with the number of seeds, as expected.</p>
@@ -234,11 +234,11 @@ expected based on the provided features.</p>
 <p>Another clustering task is to determine which teams qualified for the tournament.
 The 3D visualization via PCA applied on the full dataset (not just qualified teams) shows that the clusters of qualified
 vs. non-qualified teams appears easier to distinguish.</p>
-<img src="/images/max_3dpca_qual.png">
+<img src="images/max_3dpca_qual.png">
 <p>This is also visible in the decrease in variance of the principal components (when including all teams, not only
 qualified teams in PCA). Over <strong>50%</strong> of the variance is contained in the first component, whereas the other components
 only have minor contributions.</p>
-<img src="/images/max_screeplot_qual.png">
+<img src="images/max_screeplot_qual.png">
 <p>We need  9 features to recover <strong>96.2%</strong> of the variance.
 A purity of <strong>82%</strong> for the qualified vs. non-qualified clustering is reached, as both clusters contain mainly points
 from one ground truth (qualified or non-qualified). But from the contigency matrix</p>
@@ -300,8 +300,8 @@ plot shows clear overfitting at small values of k, as training performance is si
 <p>Support vector machines use a hyperplane to separate classes, potentially using a kernel trick before separation to
 allow for non-linear classification. We landed on a radial basis function (rbf) kernel. Two important hyperparameters
 for support vector machines are C (regularization parameter) and gamma (kernel coefficient).</p>
-<img src="/images/longchao_svm_C.png">
-<img src="/images/longchao_svm_gamma.png">
+<img src="images/longchao_svm_C.png">
+<img src="images/longchao_svm_gamma.png">
 <p>A logistic regression uses a logistic function to model a binary dependent variable, resulting in a linear classifier.
 The hyperparameters to be tuned are C (inverse of the regularization strength) and tol (tolerance for stopping
 criteria).</p>
