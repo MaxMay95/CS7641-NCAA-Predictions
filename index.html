@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>Cs7641-ncaa-predictions by hwilco6</title>
+    <title>NCAA March Madness Predictions by hwilco6</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -11,76 +11,530 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">Cs7641-ncaa-predictions</h1>
-      <h2 class="project-tagline">Final project for ML</h2>
+      <h1 class="project-name">NCAA March Madness Predictions</h1>
+      <h2 class="project-tagline">Final project for CS7641 - Machine Learning</h2>
       <a href="https://github.gatech.edu/hwilco6/CS7641-NCAA-Predictions" class="btn">View on GitHub</a>
     </section>
 
     <section class="main-content">
-      <h2>
-<a id="hierarchical-clustering-for-seeding-max-may" class="anchor" href="#hierarchical-clustering-for-seeding-max-may" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hierarchical Clustering for seeding (Max May)</h2>
-<p>In the NCAA March Madness tournament there are 64 teams each year qualified
-to participate. These 64 Teams are grouped by a committee into 16 seeds.
-Each seed consists 4 teams which have approximately the same performance.
-With seed number 1 containing the four best teams to seed number 16 containing
-the 4 weakest teams.</p>
-<p>The task is to cluster the teams from the tournament based on their season statistics
-and then compare the clustering to the decision from the committee.
-Hierarchical clustering is used to build groupings with variable cluster sizes
-depending on where the tree is cut. As the distinction between 16 seeds might be too
-hard, an even number of seeds can be conflated to one and the clustering validation
-can be compared for different seed sizes.</p>
-<p>Looking at histogram plots of the feature distributions, we can see that all 14 used features
-are normalized in an interval from 0 to 1.</p>
-<img src="images/max_datahistogram.png">
-<p>Through PCA the data can be visualized in 3D by the first three principal components. If only data from a single year is selected, one can see that it is hard to group these data points into clusters using only three features.</p>
-<img src="images/max_3dpca_2018.png">
-<p>If the data from all nine years is plotted, some patterns and clusters can be seen. But its still hard to distinguish between some of the overlapping seed clusters.</p>
-<img src="images/max_3dpca.png">
-<p>Principal component analysis tells us that at least 9 out of the 14 features are needed to achieve a retained variance of 95.1%. This can be seen in the following scree plot.</p>
-<img src="images/max_screeplot_seeding.png">
-<p>For hierarchical clustering two important settings need to be considered. One is the metric, for which euclidean distance is commonly used. The other one is the linkage, which can be single link, complete link, average link, etc.. Here average link was chosen, because it is mostly recommended for general tasks, avoids chaining and clusters mostly into evenly sized groups, which is necessary for our task. The effect of this can be seen in the following dendrogram.</p>
-<img src="images/max_dendrogram.png">
-<p>After clustering is performed, we evaluate how good it is by means of different validation metrics.</p>
-<img src="images/max_cluster_val.png">
-<p>The purity gives us an indicator of how purely the clusters consist of only data points from a single ground truth, with 1 corresponding to the best purity. For the given task we get the best purity when we only partition into two seeds and the purity decreases with the number of seeds, as expected.</p>
-<p>The mutual information measures the amount of information shared between clustering and ground truth. The adjusted variant of MI is independent of the number of clusters in a partition, otherwise a higher number of clusters would give a better MI score. Larger values indicate a good clustering. Our results show a slight decrease in the AMI for a increased number of seeds.</p>
-<p>The random score is a pairwise measure, which is the fraction of true positives and true negatives over the total number of pairs. The adjusted rand score is centered and normalized to adjust for chance. Negative values are bad, close to zero means random and a score of one means that the clusterings are identical up to label permutations. For our task the ARI slightly decreases with the number of seeds.</p>
-<p>An overall trend of decreased performance can be observed as the partitioning of the teams into the seeds gets finer. With a purity below 20% for partitioning into the regular 16 seeds, this means that this task is harder than expected based on the provided features.</p>
+      <h3>
+<a id="alejandro-da-silva-longchao-jia-vinod-kumar-max-may-harrison-wilco" class="anchor" href="#alejandro-da-silva-longchao-jia-vinod-kumar-max-may-harrison-wilco" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Alejandro Da Silva, Longchao Jia, Vinod Kumar, Max May, Harrison Wilco</h3>
+<h1>
+<a id="background" class="anchor" href="#background" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Background</h1>
+<p>Each year (considering 2020 an outlier...) 64 teams meet in the NCAA Division I Men's Basketball Tournament. This
+tournament, also known as NCAA March Madness, is one the most popular sporting events in the US. Predictions of
+tournament games are of interest to the sports-betting community as well as college sports fans — approximately 70
+million brackets are filled out annually attempting to predict the outcome of the NCAA tournament [1].</p>
+<img src="images/march_madness_logo.png">
+<h2>
+<a id="tournament-structure" class="anchor" href="#tournament-structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tournament Structure</h2>
+<p>32 Division I conference champions receive automatic bids to the tournament, while 36 teams are selected at-large from
+the remaining schools. These at-large teams are chosen by an NCAA tournament selection committee. Teams are divided into
+four regions before being seeded (ranked, lower seeding should indicate higher skill) 1-16. The 68 teams given bids
+to the tournament are narrowed down to 64 teams after the first four play-in games, and then the field of 64 teams begin
+a single-elimination tournament. This 64 team (63 game) tournament is what our project focused on.</p>
+<h1>
+<a id="methods" class="anchor" href="#methods" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Methods</h1>
+<p>This project aimed to utilize various machine learning techniques to analyze the NCAA tournament. Unless otherwise
+noted, the algorithm implementations used were from the Python package scikit-learn [2]. Unsupervised clustering was
+employed in an attempt to group teams based on skill level (and thus replicate seeding) based on regular season
+statistics from the teams. Additionally, clustering was employed to distinguish teams which qualified for the tournament
+from teams which did not. Supervised learning techniques [3] aimed to predict the winners of individual matchups in
+tournament play. In the past, machine learning models have proven somewhat successful in this application, yielding
+better results than predictions by sports experts [4].</p>
+<p>The clustering approach to seeding/tournament qualification has not shown up in our prior work searches.</p>
+<h2>
+<a id="data" class="anchor" href="#data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data</h2>
+<p>The dataset used in this project was scraped from Sports Reference [5]. Data from the 2010 through 2018 seasons were
+used. Regular season statistics such as team field goal percentage, win-loss percentage, and strength of schedule were
+used. Additionally, win-loss percentage times strength of schedule was used as a derived statistic, as we would expect
+wins against a tougher schedule to be more important than wins against easy opponents. This resulted in a final set of
+15 features. Finally, each statistic was normalized relative to the teams which made the tournament for a given year.
+For example, each team which had the worst field goal percentage of the year while making the tournament was given a 0
+for FG% Norm, while the team which made the tournament with the best FG% was given a 1 for FG% Norm. This step was taken
+to try to equalize the statistics over time, as averages for different statistics can vary by large amounts over a
+nine-year period as the game of Division I basketball changes. The use of statistics normalized by year was a new
+approach meant to make it easier to generalize results generated from previous years to future years.</p>
+<p>This stats dataset was used in tandem with Sports Reference's history of past NCAA tournament games and results to
+create a combined dataset, where each instance represented one tournament matchup. For a matchup, the one of the teams
+was randomly selected as Team1, while the other was Team2. The resulting features were created from the relative
+difference of each statistic, that is [(Team1 val - Team2 val)/avg(Team1 val, Team2 val)] for for each stat from the
+stats dataset. The label for each instance was whether Team1 won the game.</p>
 <h3>
-<a id="qualified-vs-non-qualified" class="anchor" href="#qualified-vs-non-qualified" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Qualified vs. non-qualified</h3>
-<p>Another clustering task is to determine what teams got qualified for the tournament.
-The 3D visualization via PCA shows that the clusters of qualified vs. non-qualified teams is much better to distinguish.</p>
-<img src="images/max_3dpca_qual.png">
-<p>This is also visible in the decrease in variance of the principal components. Over 50% of the variance is contained in the first component, whereas the other components only have minor contributions.</p>
-<img src="images/max_screeplot_qual.png">
-<p>We need  9 features to recover 96.2% of the variance.
-A purity of 82% for the qualified vs. non-qualified clustering is reached. As both clusters contain mainly points from one ground truth. But from the contigency matrix</p>
+<a id="full-list-of-features" class="anchor" href="#full-list-of-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Full list of features:</h3>
+<ol>
+<li>Win-loss percentage.</li>
+<li>Strength of schedule (SOS).</li>
+<li>Offensive Rating (ORtg).</li>
+<li>Defensive Rating (DRtg).</li>
+<li>Field goal percentage.</li>
+<li>Seed (0 for non-qualified teams).</li>
+<li>Win-loss percentage times SOS.</li>
+<li>Three point percentage.</li>
+<li>Free throw percentage.</li>
+<li>Points per game (PPG).</li>
+<li>Opponents points per game (OPPG).</li>
+<li>Assists per game (APG).</li>
+<li>Turnovers per game (TOVPG).</li>
+<li>Adjusted margin.</li>
+<li>Adjusted win-loss percentage.</li>
+</ol>
+<h2>
+<a id="evaluation" class="anchor" href="#evaluation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Evaluation</h2>
+<p>The unsupervised clustering methods were evaluated based on a number of metrics, including purity, mutual information
+score, and contingency matrices.</p>
+<p>The supervised methods were evaluated on accuracy, Matthew's correlation coefficient, and ROC AUC. Additionally,
+confusion matrices are presented.</p>
+<h1>
+<a id="principal-component-analysis" class="anchor" href="#principal-component-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Principal Component Analysis</h1>
+<p>PCA was applied before using certain methods that are best used with fewer features. Additionally, PCA was used prior to
+applying methods that require linearly independent features (as the base features were dependent in some cases).</p>
+<p>We observed that out of the 15 features in the matchup data set, <strong>70.2%</strong> of the variance could be captured by the first three
+principal components. Furthermore, <strong>95%</strong> of the variance could only be captured by using at least nine components,
+with <strong>99%</strong> of variance recovered requiring 11 components.</p>
+<img src="images/Supervised_PCA_Scree_Plot.png">
+<h1>
+<a id="unsupervised-learning" class="anchor" href="#unsupervised-learning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Unsupervised Learning</h1>
+<p>For the unsupervised learning, the seed feature was removed from the stats dataset (for obvious reasons). After PCA on
+the stats dataset with the seed feature removed (for obvious reasons), we needed nine components to recover at least
+<strong>95%</strong> of the variance.</p>
+<img src="images/max_screeplot_seeding.png">
+<p>It is important to note that the dataset used in unsupervised learning is not the same as the one used for supervised
+learning — the stats dataset used here was not combined with the NCAA tournament games dataset, thus each instance
+represents a Division I NCAA basketball team and their regular season statistics.</p>
+<h2>
+<a id="k-means" class="anchor" href="#k-means" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>k-means</h2>
+<p>As we mentioned before, the NCAA tournament divides the 64 qualified teams into 16 different seed, according to their
+performance during the regular season. In reality, the selection of tournament teams as well as seeding has a high
+degree of subjectivity. Our goals are to quantify that subjectivity using the k-means clustering algorithm.</p>
+<p>We decided to start with the data from year 2018. Initially, we sought to separate the teams into two separate clusters:
+one for qualified teams and the other for unqualified ones using the k-means algorithm. We used all 14 principal
+components (after excluding seeding) when computing the Euclidean distance in the algorithm.</p>
+<img src="images/Regular_KMeans_AllTeams_2018.png">
+<img src="images/AllTeams_PCA_2018.png">
+<p>Encouraged by the clear separation between the clusters, we decided to divide the qualified teams for the year 2018 by
+clustering the teams into 16 clusters (equivalent to 16 seeds) based on the all of the transformed statistics obtained
+with PCA. We obtained the following results</p>
+<img src="images/Regular_KMeans_2018_16Seeds.png">
+<img src="images/Qualified_PCA_2018_16Seeds.png">
+<p>It seems like clustering was not very good. Specifically, the purity of the clustering hovers at <strong>39.5%</strong>. We
+hypothesized that decreasing the number of clusters to 4 (which corresponds into 1-4 seeds, 5-8 seeds, etc.) would yield
+better results</p>
+<img src="images/Regular_KMeans_2018_4Seeds.png">
+<img src="images/Qualified_PCA_2018_4Seeds.png">
+<p>Here, purity was <strong>56.1%</strong>. Even though we achieved better results, we noticed another problem with the regular k-means
+algorithm, specifically that number of points per cluster is not limited. For example, the number of datapoints in the
+last run were as follows:</p>
 <table>
 <thead>
 <tr>
-<th align="center">Clustering/Ground truth</th>
-<th align="center">T1</th>
-<th align="center">T2</th>
+<th align="center">Cluster Number</th>
+<th align="center">Number of Elements</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">C1</td>
+<td align="center">1</td>
+<td align="center">10</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">15</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">17</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">22</td>
+</tr>
+</tbody>
+</table>
+<p>We would expect to see an equal number of teams assigned to each seed (or group of seeds) if following real seeding
+procedures.</p>
+<h3>
+<a id="modified-k-means" class="anchor" href="#modified-k-means" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modified k-means</h3>
+<p>Given these limitations, we created a modified k-means algorithm that evenly divides datapoints across clusters.
+Specifically, the clusters prioritize having the minimum distance between a datapoint and the cluster center, discarding
+the points that are farther away. These points in turn are forced to belong to another cluster. The implementation
+looked as follows for both the cases of 16 and 4 clusters.</p>
+<img src="images/Modified_KMeans_2018_16Seeds.png">
+<img src="images/Modified_KMeans_2018_4Seeds.png">
+<p>When we looked at the purity of each clustering, we obtained slightly better results when compared to the regular
+k-means algorithm. Specifically, we obtained a purity of <strong>41.7%</strong> for 16 seeds (compared to 39.5%) and <strong>57.5%</strong>
+(compared to <strong>56.1%</strong>).</p>
+<p>We then decided to further test the performance of both clustering algorithms by using data for all available years in
+the dataset (2010-2018). We used the normalized statistics to minimize differences in performance across the years.
+Results of PCA are shown here for contrast against the clusters later on.</p>
+<img src="images/Qualified_PCA_All_16Seeds.png">
+<img src="images/Qualified_PCA_All_4Seeds.png">
+<p>Furthermore, these are the results of running both algorithms for 16 clusters...</p>
+<img src="images/Regular_KMeans_All_16Seeds.png">
+<img src="images/Modified_KMeans_All_16Seeds.png">
+<p>...and 4 clusters ...</p>
+<img src="images/Regular_KMeans_All_4Seeds.png">
+<img src="images/Modified_KMeans_All_4Seeds.png">
+<p>In terms of purity, we obtained the following measurements.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Number of Clusters</th>
+<th align="center">Regular</th>
+<th align="center">Modified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>16</strong></td>
+<td align="center">26.5%</td>
+<td align="center">26.1%</td>
+</tr>
+<tr>
+<td align="center"><strong>4</strong></td>
+<td align="center">54.9%</td>
+<td align="center">55.0%</td>
+</tr>
+</tbody>
+</table>
+<p>It is important to recognize the limitations of the latter approach to unsupervised clustering. Given more data, it
+appears that both algorithms have the same performance. This spans from the prioritization of assignment of data points
+to a cluster. A careful observer would note that some points in the modified k-means algorithm are far away from their
+cluster center. This points could be called "outliers", not being close enough to any cluster center and thus assigned
+by default to a the center that is closest to it that doesn't have all points assigned to it yet. This method showed
+some promise, but could use refinement.</p>
+<h2>
+<a id="hierarchical-clustering-seeding" class="anchor" href="#hierarchical-clustering-seeding" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hierarchical Clustering (Seeding)</h2>
+<p>Hierarchical clustering is used to build groupings with variable cluster sizes depending on where the tree is cut. As
+the distinction between 16 seeds might be too hard, an even number of seeds can be conflated to one and the clustering
+validation can be compared for different seed sizes. PCA was applied, keeping nine components.</p>
+<p>For hierarchical clustering two important settings need to be considered. One is the metric, for which Euclidean
+distance is commonly used. The other one is the linkage, which can be single link, complete link, average link, etc.
+Here, average link was chosen because it is often recommended for general tasks, avoids chaining, and clusters mostly
+into evenly sized groups, which is necessary for our task. The effect of this can be seen in the following dendrogram.</p>
+<img src="images/max_dendrogram.png">
+<p>After clustering is performed, we evaluate how good it is by means of different validation metrics.</p>
+<img src="images/max_cluster_val.png">
+<p>The purity gives us an indicator of how purely the clusters consist of only data points from a single ground truth, with
+1 corresponding to the best purity. For the given task we get the best purity when we only partition into two seeds and
+the purity decreases with the number of seeds, as expected.</p>
+<p>The mutual information measures the amount of information shared between clustering and ground truth. The adjusted
+variant of MI is independent of the number of clusters in a partition, otherwise a higher number of clusters would give
+a better MI score. Larger values indicate a good clustering. Our results show a slight decrease in the AMI for an
+increased number of seeds.</p>
+<p>The random score is a pairwise measure, which is the fraction of true positives and true negatives over the total number
+of pairs. The adjusted rand score is centered and normalized to adjust for chance. Negative values are bad, close to
+zero means random and a score of one means that the clustering assignments are identical up to label permutations. For
+our task the ARI slightly decreases with the number of seeds.</p>
+<p>An overall trend of decreased performance can be observed as the partitioning of the teams into the seeds gets finer.
+With a purity below <strong>20%</strong> for partitioning into the regular 16 seeds, this means that this task is harder than
+expected based on the provided features.</p>
+<h2>
+<a id="hierarchical-clustering-tournament-qualification" class="anchor" href="#hierarchical-clustering-tournament-qualification" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hierarchical Clustering (Tournament Qualification)</h2>
+<p>Another clustering task is to determine which teams qualified for the tournament.
+The 3D visualization via PCA applied on the full dataset (not just qualified teams) shows that the clusters of qualified
+vs. non-qualified teams appears easier to distinguish.</p>
+<img src="images/max_3dpca_qual.png">
+<p>This is also visible in the decrease in variance of the principal components (when including all teams, not only
+qualified teams in PCA). Over <strong>50%</strong> of the variance is contained in the first component, whereas the other components
+only have minor contributions.</p>
+<img src="images/max_screeplot_qual.png">
+<p>We need  9 features to recover <strong>96.2%</strong> of the variance.
+A purity of <strong>82%</strong> for the qualified vs. non-qualified clustering is reached, as both clusters contain mainly points
+from one ground truth (qualified or non-qualified). But from the contigency matrix</p>
+<table>
+<thead>
+<tr>
+<th align="center">Clustering/Qualification</th>
+<th align="center">NQ</th>
+<th align="center">Q</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><strong>C1</strong></td>
 <td align="center">2521</td>
 <td align="center">576</td>
 </tr>
 <tr>
-<td align="center">C2</td>
+<td align="center"><strong>C2</strong></td>
 <td align="center">28</td>
 <td align="center">0</td>
 </tr>
 </tbody>
 </table>
-<p>we can see that both clusters are assigned to the same ground truth partition. This results in a bad ARI and AMI score close to 0. Seems that the clusters are not properly seperable by the distance metric. Because there are far less qualified than non-qualified data points, one cluster should end up much bigger than the other one and they are not evenly sized anymore.</p>
+<p>we can see that both clusters are assigned to the same ground truth partition. This results in a bad ARI and an AMI
+score close to 0. These results suggest that the qualified and non-qualified teams are not properly separable through
+hierarchical clustering and the distance metric utilized. The heavy bias toward non-qualified teams (as only 64 teams
+make the tournament each year) may be a contributing factor of this result.</p>
+<h2>
+<a id="unsupervised-learning-conclusion" class="anchor" href="#unsupervised-learning-conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Unsupervised Learning Conclusion</h2>
+<p>The results from both k-means and hierarchical clustering seem to highlight the poor performance of unsupervised
+learning to predict the seeding positions for any given year. More complicated algorithms or more exhaustive data could
+yield to better results, but we expect those to only show marginal improvements over the algorithms described here given
+the subjectivity of seeding assignment carried out by a group of judges. This performance could indicate one of two
+different results (or a mix of the two):</p>
+<ol>
+<li>Clustering using the selected features is a poor way to group teams based on regular season performance.</li>
+<li>The selection committee does not accurately seed teams based on objective metrics of regular season performance.</li>
+</ol>
+<p>It is also worth noting that since 32 teams automatically qualify to the tournament based on conference championships,
+some weaker teams that happen to play in weaker conferences may qualify over stronger teams. Finally, seeding must take
+into account considerations other than just strength [6]. For example, repeats of regular season matchups are avoided to
+some extent in early rounds.</p>
+<h1>
+<a id="supervised-results" class="anchor" href="#supervised-results" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Supervised Results</h1>
+<p>The following results were obtained using an 80-20 train-test split. 10-fold cross validation was performed to
+determine hyperparameters for each model using ROC AUC as the metric. The cross validations plots show performance vs
+hyperparameter values. The blue line shows CV performance, with the shaded region showing an 80% confidence interval for
+the mean performance. The orange line shows performance over the entire training set.</p>
+<h2>
+<a id="k-nn" class="anchor" href="#k-nn" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>k-NN</h2>
+<p>A standard scaler followed by PCA (with retained variance &gt;= 0.99) were applied. 11 components are kept after the PCA
+step.</p>
+<img src="images/longchao_knn.png">
+<p>The results indicate that validation ROC AUC flattens off around k=19. k=19 produced a mean CV ROC AUC of <strong>0.784</strong>. The
+plot shows clear overfitting at small values of k, as training performance is significantly higher than CV performance.</p>
+<h2>
+<a id="svm" class="anchor" href="#svm" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SVM</h2>
+<p>Support vector machines use a hyperplane to separate classes, potentially using a kernel trick before separation to
+allow for non-linear classification. We landed on a radial basis function (rbf) kernel. Two important hyperparameters
+for support vector machines are C (regularization parameter) and gamma (kernel coefficient).</p>
+<img src="images/longchao_svm_C.png">
+<img src="images/longchao_svm_gamma.png">
+<p>A logistic regression uses a logistic function to model a binary dependent variable, resulting in a linear classifier.
+The hyperparameters to be tuned are C (inverse of the regularization strength) and tol (tolerance for stopping
+criteria).</p>
+<img src="images/longchao_lr_C.png">
+<img src="images/longchao_lr_tol.png">
+<p>The best fit parameter we have for SVM is C=100 and tol=1e-3, yielding a mean CV ROC AUC of <strong>0.781</strong>. One concerning
+aspect of the plots is the consistent underfitting evidenced. Training performance seems to be far lower than CV
+performance across all hyperparameter values tested.</p>
+<h2>
+<a id="decision-tree" class="anchor" href="#decision-tree" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Decision Tree</h2>
+<p>Decision trees repeatedly split data based on thresholds for a certain features to classify datapoints at leaf nodes.
+Decision trees trained on data before scaling and PCA performed significantly better than after PCA, thus PCA was not
+applied for these models. The main hyperparameter of interest is the tree's maximum depth.</p>
+<img src="images/dt_max_depth.png">
+<p>After cross-validation, a max-depth of three was selected, yielding a mean CV ROC AUC of <strong>0.786</strong>. It is clear that as
+the depth of the tree increases, the model tends to overfit, as training performance steadily rises while CV performance
+falls off after a max depth of three. Here is a tree of depth three trained on the entire training set:</p>
+<img src="images/dt_visualization.png">
+<h2>
+<a id="random-forest" class="anchor" href="#random-forest" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Random Forest</h2>
+<p>A random forest classifier is an ensemble classifier that fits many simple decision trees to the data then has them each
+vote for a class label. The implementation chosen uses bagging (bootstrap aggregating). Again, PCA seemed to hurt model
+performance and thus was not used.</p>
+<img src="images/rf_n_estimators.png">
+<p>Here it appears CV performance levels off after approximately 60 estimators, with a mean CV ROC AUC of <strong>0.799</strong>. This
+model, however, appears to have extreme overfitting issues. Training ROC AUC (and accuracy) quickly hits <strong>1.000</strong>. To
+combat this issue we decided to decrease the complexity of the base estimators by limiting the max depth of the decision
+trees used to four.</p>
+<img src="images/rf_n_estimators_simple.png">
+<p>Now we find 40 estimators provides the best perofrmance, with a mean CV ROC AUC of <strong>0.814</strong>. While this increase is
+likely not statistically significant with any reasonable degree of certainty, we did achieve the desired result —
+training performance is far closer to CV performance.</p>
+<h2>
+<a id="mlp" class="anchor" href="#mlp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>MLP</h2>
+<p>A multilayer perceptron is a feedforward artificial neural network (ANN) composed of multiple layers of perceptrons with
+threshold activations. MLPs are relatively complex in terms of hyperparameters to tune.</p>
+<p>In the scikit-learn implementation, we tuned the number of hidden layers, the number of neurons in each layer, alpha (L2
+penalty parameter), initial learning rate, hidden layer activation function, and max number of iterations. With so many
+hyperparameters, a grid search based approach similar to the approaches used previously would either cover too little of
+the hyperparameter space, or take too long. Instead, a random search over the hyperparameter space was used. We limited
+the MLP to at most two hidden layers (no performance increases seen after two layers), limited neurons per layer to the
+range [5, 200], limited alpha to the range [1e-5, 1e-1] (with a log-uniform distribution), limited initial learning rate
+to the range [1e-4, 1e-2] (with a log-uniform distribution), and limited the max number of iterations to the range
+[25, 500]. Then 10000 hyperparameter configurations were run through 5-fold cross validation. The best model
+configurations from each set of 2000-3000 configurations consistently reached mean CV ROC AUC scores of approximately
+<strong>0.86</strong>. The chosen configuration had the highest score by a small margin, with a mean CV ROC AUC of <strong>0.862</strong>.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Hyperparameter</th>
+<th align="center">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">num hidden layers</td>
+<td align="center">2</td>
+</tr>
+<tr>
+<td align="center">hidden layer sizes</td>
+<td align="center">(86, 24)</td>
+</tr>
+<tr>
+<td align="center">initial learning rate</td>
+<td align="center">3e-4</td>
+</tr>
+<tr>
+<td align="center">max iterations</td>
+<td align="center">244</td>
+</tr>
+<tr>
+<td align="center">activation</td>
+<td align="center">tanh</td>
+</tr>
+</tbody>
+</table>
+<p>We also examined the learning rate of the selected model.</p>
+<img src="images/mlp_learning_curves.png">
+<h2>
+<a id="supervised-learning-conclusion" class="anchor" href="#supervised-learning-conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Supervised Learning Conclusion</h2>
+<h3>
+<a id="model-comparison" class="anchor" href="#model-comparison" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Model Comparison</h3>
+<table>
+<thead>
+<tr>
+<th align="center">Model</th>
+<th align="center">Mean CV ROC AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">k-NN</td>
+<td align="center">0.784</td>
+</tr>
+<tr>
+<td align="center">SVM</td>
+<td align="center">0.781</td>
+</tr>
+<tr>
+<td align="center">Decision Tree</td>
+<td align="center">0.786</td>
+</tr>
+<tr>
+<td align="center">Random Forest</td>
+<td align="center">0.814</td>
+</tr>
+<tr>
+<td align="center">MLP</td>
+<td align="center">0.862</td>
+</tr>
+</tbody>
+</table>
+<p>As indicated above, the MLP model performed at the highest rate, with the random forest performing significantly lower.
+The remaining models each had similar, even lower performances (though these ROC AUC values were still rather high).</p>
+<h3>
+<a id="testing-performance" class="anchor" href="#testing-performance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing Performance</h3>
+<p>Since the MLP had the highes mean CV ROC AUC, it was selected as the model to train on the entire training set and use
+for testing. It achieved the following results on the testing set:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Metric</th>
+<th align="center">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">ROC AUC</td>
+<td align="center">0.888</td>
+</tr>
+<tr>
+<td align="center">Accuracy</td>
+<td align="center">0.886</td>
+</tr>
+<tr>
+<td align="center">MCC</td>
+<td align="center">0.775</td>
+</tr>
+<tr>
+<td align="center">F1 Score</td>
+<td align="center">0.885</td>
+</tr>
+</tbody>
+</table>
+<p>Using the Wilson score interval [7], we can say with <strong>95%</strong> certainty that our model's mean accuracy is
+<strong>0.886 +- 0.059</strong>.</p>
+<p>The confusion matrix produced was:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Team1 Prediction/Team1 Result</th>
+<th align="center">True Win</th>
+<th align="center">True Loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Predicted Win</td>
+<td align="center">51</td>
+<td align="center">9</td>
+</tr>
+<tr>
+<td align="center">Predicted Loss</td>
+<td align="center">4</td>
+<td align="center">50</td>
+</tr>
+</tbody>
+</table>
+<h3>
+<a id="performance-evaluation" class="anchor" href="#performance-evaluation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Performance Evaluation</h3>
+<p>The official NCAA Bracket Challenge game receives millions of entries each year [8]. Unfortunately, the uncertain nature of
+matchups makes it hard to compare our model to overall accuracy in bracket challenge games. After the first round, the
+teams people predict to win games may not even get a chance to play in those games (if they were eliminated). As such,
+we can only compare accuracy with first round accuracy, however this should be a reasonable comparison. From 2015-2017,
+first round games were predicted correctly <strong>72.1%</strong> of the time [9], a mark well below the testing accuracy of our model.
+Additionally, of all first round matchups (1 vs. 16, 2 vs. 15, etc.) participants only predicted matchups of 1 vs. 16
+teams at a higher rate than our model predicted all matchups (<strong>97.9%</strong> of 1 vs. 16 matchups were predicted correctly)
+[9]. 2 vs. 15 matchups were predicted at the same rate as our model's test, and matchups closer than 2 vs. 16 fell
+sharply in accuracy [9].</p>
+<p>Perfect predictions of NCAA tournament games will likely never be possible. Too many confounding variables are involved,
+from player injuries to motivation. Our team is very happy with the performance achieved by our final model, however.
+The model scored quite well in each metric when run on the withheld test set.</p>
+<h1>
+<a id="future-work" class="anchor" href="#future-work" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Future Work</h1>
+<h2>
+<a id="data-1" class="anchor" href="#data-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data</h2>
+<p>The most obvious place to improve is the aquisition of more data points. While some of the advanced statistics used as
+features were not tracked until 2010, expanding the dataset to include all NCAA tournament games but reducing features
+down to basic features may still improve performance. Otherwise, as more NCAA tournament occur, more data will become
+available for training.</p>
+<p>First, a larger number of statistics could be pulled from Sports Reference as well as other sources. Metrics such as SRS
+(simple rating system), pace, RPI (rating percentage index), and true shooting percentage could all provide more
+informative power to models. Additionally, the NCAA has recently implemented a new metric called the NET (NCAA
+evaluation tool) which they claim serves as a comprehensive measure of team strength [10]. The NET ranking could not be
+used as NET rankings only date back to the 2019 season.</p>
+<p>A different approach entirely would be to use more in-depth, play-by-play statistics rather than aggregate season
+statistics. While data collection and processing would be more difficult, model performance may see benefits. This
+approach may also allow the model to account for injuries or otherwise inactive players.</p>
+<h2>
+<a id="supervised-learning" class="anchor" href="#supervised-learning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Supervised Learning</h2>
+<p>Utilizing random searches for all models tried may have marginally increase some of their performances by testing out a
+larger/more comprehensive hyperparameter space. In general, random search has several advantages over grid search:</p>
+<ol>
+<li>Adding hyperparameters which are uninformative does not decrease search efficiency [11].</li>
+<li>A budget can be chosen independent of the number of hyperparameters and possible values [11].</li>
+<li>Random search provides higher effective dimensionality, resulting in more efficient searches [12].</li>
+</ol>
+<h1>
+<a id="references" class="anchor" href="#references" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>References</h1>
+<p>[1] American Gaming Association (2019, Mach 18). <em>2019 March Madness Betting Estimates</em>.</p>
+<p>[2] scikit-learn. <em>scikit-learn: About us</em>. (n.d.). Retrieved from <a href="https://scikit-learn.org/stable/about.html">https://scikit-learn.org/stable/about.html</a>.</p>
+<p>[2] Kvam, P., and J. S. Sokol. (2006, July 14) <em>A logistic regression/Markov chain model for NCAA basketball</em>. Naval
+Research Logistics 53(8):788–803.</p>
+<p>[4] Bunker, R. P., and F. Thabtah. (2017, September 19) <em>A machine learning framework for sport result prediction</em>.
+Applied Computing and Informatics 15(1):27–33.</p>
+<p>[5] Sports Reference. <em>College Basketball Statistics and History: College Basketball at Sports.</em> (n.d.). Retrieved from
+<a href="https://www.sports-reference.com/cbb/">https://www.sports-reference.com/cbb/</a>.</p>
+<p>[6] NCAA.com. (2019, October 31). <em>How the field of 68 teams is picked for March Madness.</em> Retrieved from
+<a href="https://www.ncaa.com/news/basketball-men/article/2018-10-19/how-field-68-teams-picked-march-madness">https://www.ncaa.com/news/basketball-men/article/2018-10-19/how-field-68-teams-picked-march-madness</a></p>
+<p>[7] Wilson, E. B. (1927). <em>Probable Inference, the Law of Succession, and Statistical Inference.</em> Journal of the
+American Statistical Association, 22(158), 209–212. doi: 10.1080/01621459.1927.10502953</p>
+<p>[8] Wilco, D. (2020, March 26). <em>The absurd odds of a perfect NCAA bracket.</em> Retrieved from
+<a href="https://www.ncaa.com/news/basketball-men/bracketiq/2020-01-15/perfect-ncaa-bracket-absurd-odds-march-madness-dream">https://www.ncaa.com/news/basketball-men/bracketiq/2020-01-15/perfect-ncaa-bracket-absurd-odds-march-madness-dream</a></p>
+<p>[9] Wilco, D. (2020, April 21). Personal interview.</p>
+<p>[10] NCAA.com. (2019, December 16). <em>The NET, explained: NCAA adopts new college basketball ranking.</em> Retrieved from
+<a href="https://www.ncaa.com/news/basketball-men/article/2018-11-26/net-explained-ncaa-adopts-new-college-basketball-ranking">https://www.ncaa.com/news/basketball-men/article/2018-11-26/net-explained-ncaa-adopts-new-college-basketball-ranking</a></p>
+<p>[11] NCAA.com. <em>Tuning the hyper-parameters of an estimator.</em> (n.d.). Retrieved from
+<a href="https://scikit-learn.org/stable/modules/grid_search.html#randomized-parameter-search">https://scikit-learn.org/stable/modules/grid_search.html#randomized-parameter-search</a></p>
+<p>[12] Bergstra, J., &amp; Bengio, Y. (2012). <em>Random Search for Hyper-Parameter Optimization.</em> Journal of Machine Learning
+Research, 13, 281–305. Retrieved from <a href="http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf">http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf</a></p>
 
       <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.gatech.edu/hwilco6/CS7641-NCAA-Predictions">Cs7641-ncaa-predictions</a> is maintained by <a href="https://github.gatech.edu/hwilco6">hwilco6</a>.</span>
+        <span class="site-footer-owner"><a href="https://github.gatech.edu/hwilco6/CS7641-NCAA-Predictions">NCAA March Madness Predictions</a> is maintained by <a href="https://github.gatech.edu/hwilco6">hwilco6</a>.</span>
 
         <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
