@@ -155,7 +155,7 @@ last run were as follows:</p>
 procedures.</p>
 <h3>
 <a id="modified-k-means" class="anchor" href="#modified-k-means" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modified k-means</h3>
-<p>Given these limitations, we created a modified k-means algorithm that evenly divides datapoints across clusters.
+<p>Given these limitations, we created a modified k-means algorithm that evenly divides data points across clusters.
 Specifically, the clusters prioritize having the minimum distance between a datapoint and the cluster center, discarding
 the points that are farther away. These points in turn are forced to belong to another cluster. The implementation
 looked as follows for both the cases of 16 and 4 clusters.</p>
@@ -232,7 +232,7 @@ expected based on the provided features.</p>
 <h2>
 <a id="hierarchical-clustering-tournament-qualification" class="anchor" href="#hierarchical-clustering-tournament-qualification" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hierarchical Clustering (Tournament Qualification)</h2>
 <p>Another clustering task is to determine which teams qualified for the tournament.
-The 3D visualization via PCA applied on the full dataset (not just qualified teams) shows that the clusters of qualified
+The 3D visualization via PCA applied on the full data set (not just qualified teams) shows that the clusters of qualified
 vs. non-qualified teams appears easier to distinguish.</p>
 <img src="images/max_3dpca_qual.png">
 <p>This is also visible in the decrease in variance of the principal components (when including all teams, not only
@@ -241,7 +241,7 @@ only have minor contributions.</p>
 <img src="images/max_screeplot_qual.png">
 <p>We need  9 features to recover <strong>96.2%</strong> of the variance.
 A purity of <strong>82%</strong> for the qualified vs. non-qualified clustering is reached, as both clusters contain mainly points
-from one ground truth (qualified or non-qualified). But from the contigency matrix</p>
+from one ground truth (qualified or non-qualified). But from the contingency matrix</p>
 <table>
 <thead>
 <tr>
@@ -302,6 +302,7 @@ allow for non-linear classification. We landed on a radial basis function (rbf) 
 for support vector machines are C (regularization parameter) and gamma (kernel coefficient).</p>
 <img src="images/longchao_svm_C.png">
 <img src="images/longchao_svm_gamma.png">
+<p>The best fit hyperparameters we have for SVM are C=100 and tol=1e-3, yielding a mean CV ROC AUC of <strong>0.781</strong>.</p>
 <h2>
 <a id="logistic-regression" class="anchor" href="#logistic-regression" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Logistic Regression</h2>
 <p>A logistic regression uses a logistic function to model a binary dependent variable, resulting in a linear classifier.
@@ -309,12 +310,10 @@ The hyperparameters to be tuned are C (inverse of the regularization strength) a
 criteria).</p>
 <img src="images/longchao_lr_C.png">
 <img src="images/longchao_lr_tol.png">
-<p>The best fit parameter we have for SVM is C=100 and tol=1e-3, yielding a mean CV ROC AUC of <strong>0.781</strong>. One concerning
-aspect of the plots is the consistent underfitting evidenced. Training performance seems to be far lower than CV
-performance across all hyperparameter values tested.</p>
+<p>We found C=1 and tol=5e-4 gave the best results, yielding a mean VS ROC AUC of <strong>0.832</strong>. While this CV results is good, one concerning aspect of the plots is the consistent underfitting evidenced. Training performance seems to be far lower than CV performance across all hyperparameter values tested.</p>
 <h2>
 <a id="decision-tree" class="anchor" href="#decision-tree" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Decision Tree</h2>
-<p>Decision trees repeatedly split data based on thresholds for a certain features to classify datapoints at leaf nodes.
+<p>Decision trees repeatedly split data based on thresholds for a certain features to classify data points at leaf nodes.
 Decision trees trained on data before scaling and PCA performed significantly better than after PCA, thus PCA was not
 applied for these models. The main hyperparameter of interest is the tree's maximum depth.</p>
 <img src="images/dt_max_depth.png">
@@ -333,7 +332,7 @@ model, however, appears to have extreme overfitting issues. Training ROC AUC (an
 combat this issue we decided to decrease the complexity of the base estimators by limiting the max depth of the decision
 trees used to four.</p>
 <img src="images/rf_n_estimators_simple.png">
-<p>Now we find 40 estimators provides the best perofrmance, with a mean CV ROC AUC of <strong>0.814</strong>. While this increase is
+<p>Now we find 40 estimators provides the best performance, with a mean CV ROC AUC of <strong>0.814</strong>. While this increase is
 likely not statistically significant with any reasonable degree of certainty, we did achieve the desired result —
 training performance is far closer to CV performance.</p>
 <h2>
@@ -403,6 +402,10 @@ configurations from each set of 2000-3000 configurations consistently reached me
 <td align="center">0.781</td>
 </tr>
 <tr>
+<td align="center">Logistic Regression</td>
+<td align="center">0.832</td>
+</tr>
+<tr>
 <td align="center">Decision Tree</td>
 <td align="center">0.786</td>
 </tr>
@@ -416,11 +419,10 @@ configurations from each set of 2000-3000 configurations consistently reached me
 </tr>
 </tbody>
 </table>
-<p>As indicated above, the MLP model performed at the highest rate, with the random forest performing significantly lower.
-The remaining models each had similar, even lower performances (though these ROC AUC values were still rather high).</p>
+<p>As indicated above, the MLP model performed at the highest rate, then the logistic regression, followed by the random forest. The remaining models each had similar, even lower performances (though these ROC AUC values were still rather high).</p>
 <h3>
 <a id="testing-performance" class="anchor" href="#testing-performance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing Performance</h3>
-<p>Since the MLP had the highes mean CV ROC AUC, it was selected as the model to train on the entire training set and use
+<p>Since the MLP had the highest mean CV ROC AUC, it was selected as the model to train on the entire training set and use
 for testing. It achieved the following results on the testing set:</p>
 <table>
 <thead>
@@ -490,7 +492,7 @@ The model scored quite well in each metric when run on the withheld test set.</p
 <a id="future-work" class="anchor" href="#future-work" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Future Work</h1>
 <h2>
 <a id="data-1" class="anchor" href="#data-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data</h2>
-<p>The most obvious place to improve is the aquisition of more data points. While some of the advanced statistics used as
+<p>The most obvious place to improve is the acquisition of more data points. While some of the advanced statistics used as
 features were not tracked until 2010, expanding the dataset to include all NCAA tournament games but reducing features
 down to basic features may still improve performance. Otherwise, as more NCAA tournament occur, more data will become
 available for training.</p>
