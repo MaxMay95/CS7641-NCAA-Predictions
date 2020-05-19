@@ -1,0 +1,8 @@
+title: NCAA March Madness Predictions
+description: Final project for CS7641 - Machine Learning
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-cayman
+
+gems:
+  - jekyll-mentions
